@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrating OpenAIs GPT API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 style=color:#fff> My Personal AI Assistant </h1>
+        <div class="conversation"> </div>
+        <textarea name="usercomm" rows="5" cols="50" placeholder="Please enter your message"></textarea>
+        <br>
+        <input id="submit-btn" type="submit" value="Shoot" disabled>
+    </div>
+
+    <script>
+        var apiKey = "";
+
+        fetch('/.netlify/functions/getApiKey')
+            .then(response => response.json())
+            .then(data => {
+                apiKey = data.apiKey;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+        const data = {
+            'model': 'gpt-3.5-turbo',
+            'messages': [
+                { 'role': 'system', 'content': 'You are a helpful assistant.' }
+            ]
+        };
+
+        var conversationDiv = document.querySelector(".conversation");
+        var textArea = document.querySelector("textarea[name=usercomm]")
+
+        const submitBtn = document.getElementById('submit-btn');
+        var isRequestInProgress = false; // Flag to track request status
+
+        //Preventing user from sending empty/extra long messages to the API
+        textArea.addEventListener('input', function () {
+            if (textArea.value.length === 0 || textArea.value.length > 255) {
+                submitBtn.disabled = true
+            } else {
+                submitBtn.disabled = false
+            }
+        });
+
+        document.getElementById('submit-btn').addEventListener('click', function () {
+            var inputText = document.querySelector("textarea[name=usercomm]").value;
+            var newMessage = document.createElement("p");
+            newMessage.innerText = 'You: ' + inputText;
+            conversationDiv.appendChild(newMessage);
+
+            // Send the user input to the ChatGPT API
+            sendChatRequest(inputText);
+
+            submitBtn.disabled = true;
+            textArea.disabled = true;
+
+            // Clear the textarea
+            document.querySelector("textarea[name=usercomm]").value = "";
+        });
+
+        async function sendChatRequest(message) {
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            };
+
+            data.messages.push({ 'role': 'user', 'content': message })
+
+            const requestOptions = {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            };
+
+            try {
+                const response = await fetch(apiUrl, requestOptions);
+                const responseData = await response.json();
+
+                // Get the assistant's reply from the API response
+                const reply = responseData.choices[0].message.content;
+
+                //Maintaining a queue of the assistant's response
+                data.messages.push({ 'role': 'assistant', 'content': reply })
+
+                // Display the assistant's reply in the conversation
+                var assistantReply = document.createElement("p");
+                assistantReply.innerText = 'Assistant: ' + reply;
+                conversationDiv.appendChild(assistantReply);
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                isRequestInProgress = false; // Reset flag once request is complete
+                textArea.disabled = false;
+                textArea.focus(); // Set focus back to the textarea
+            }
+        }
+    </script>
+</body>
+
+</html>

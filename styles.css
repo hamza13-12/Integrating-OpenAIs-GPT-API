@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@700&display=swap');
+
+body {
+    background: linear-gradient(to right, #e96443, #904e95);
+}
+
+h1 {
+    font-family: 'PT Sans Narrow', sans-serif;
+    font-weight: 300;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    justify-content: space-between;
+}
+
+.conversation {
+    border: 2px solid black;
+    width: 70vw;
+    height: 100%;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+}
+
+textarea {
+    margin-top: 40px;
+    background-color: transparent;
+    border: 2px solid black;
+    width: 50vw;
+}
+
+#submit-btn {
+    background-color: #61395f8c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#submit-btn:hover{
+    background-color: #61395f;
+}
+
+#submit-btn:focus{
+    outline: none;
+}
+
+#submit-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+textarea::placeholder {
+    color: rgb(255, 255, 255); 
+    padding: 2%;
+  }
